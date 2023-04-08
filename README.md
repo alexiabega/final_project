@@ -5,3 +5,4 @@ provider that the company uses is AWS. The client is requesting a reliable infra
 can scale dynamically, based on the incoming traffic.
 
 Provided by: Alexia, Olti & Erigen.
+.
