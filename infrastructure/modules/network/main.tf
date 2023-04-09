@@ -7,25 +7,18 @@ resource "aws_vpc" "main-vpc" {
 }
 
 
-resource "aws_subnet" "public-subnet" {
-  vpc_id     = aws_vpc.main-vpc.id
-  availability_zone = "eu-north-1a"
-  cidr_block = "10.0.1.0/24"
+resource "aws_subnet" "main-public-subnets" {
+  for_each = var.SUBNETS
 
+  vpc_id                  = aws_vpc.main-vpc.id
+  availability_zone       = "eu-north-1a"
+  cidr_block              = "10.0.${each.value}.0/24"
+  map_public_ip_on_launch = "true"
   tags = {
-    Name = "group2-public-subnet"
+    Name = "group2-subnet-${each.value}-prod"
   }
 }
 
-resource "aws_subnet" "private-subnet" {
-  vpc_id     = aws_vpc.main-vpc.id
-  availability_zone = "eu-north-1a"
-  cidr_block = "10.0.2.0/24"
-
-  tags = {
-    Name = "group2-private-subnet"
-  }
-}
 
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main-vpc.id
@@ -44,17 +37,14 @@ resource "aws_route_table" "rt" {
     gateway_id = aws_internet_gateway.gw.id
   }
 
-  route {
-    ipv6_cidr_block        = "::/0"
-    egress_only_gateway_id = aws_egress_only_internet_gateway.example.id
-  }
-
   tags = {
     Name = "group2-route-table"
   }
 }
 
 resource "aws_route_table_association" "a" {
-  subnet_id      = aws_subnet.public-subnet.id
+ for_each = aws_subnet.main-public-subnets
+
+  subnet_id      = each.value.id
   route_table_id = aws_route_table.rt.id
 }
