@@ -1,5 +1,5 @@
 resource "aws_vpc" "main-vpc" {
-  cidr_block       = "10.0.0.0/16"
+  cidr_block = "10.0.0.0/16"
 
   tags = {
     Name = "group2"
@@ -43,7 +43,7 @@ resource "aws_route_table" "rt" {
 }
 
 resource "aws_route_table_association" "a" {
- for_each = aws_subnet.main-public-subnets
+  for_each = aws_subnet.main-public-subnets
 
   subnet_id      = each.value.id
   route_table_id = aws_route_table.rt.id
