@@ -32,11 +32,5 @@ resource "aws_eks_node_group" "private-nodes" {
   labels = {
     role = "general"
   }
-
-  depends_on = [
-    var.policy_attachment_node_nodePolicy,
-    var.policy_attachment_node_cni,
-    var.policy_attachment_node_readOnly,
-  ]
 }
 
