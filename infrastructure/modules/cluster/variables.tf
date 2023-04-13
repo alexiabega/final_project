@@ -11,5 +11,5 @@ variable "role_node_arn" {
 }
 
 variable "policy_attachment_node_clusterPolicy" {
-  type = string
+  type = any
 }

@@ -11,7 +11,7 @@ resource "aws_subnet" "main-public-subnets" {
   for_each = var.SUBNETS
 
   vpc_id                  = aws_vpc.main-vpc.id
-  availability_zone       = "eu-north-1a"
+  availability_zone       = "eu-north-1${each.key}"
   cidr_block              = "10.0.${each.value}.0/24"
   map_public_ip_on_launch = "true"
   tags = {

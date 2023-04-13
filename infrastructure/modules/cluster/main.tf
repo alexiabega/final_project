@@ -1,5 +1,5 @@
-resource "aws_eks_cluster" "demo" {
-  name     = "demo"
+resource "aws_eks_cluster" "group2EKS" {
+  name     = "group2EKS"
   role_arn = var.role_demo_arn
 
   vpc_config {
@@ -10,7 +10,7 @@ resource "aws_eks_cluster" "demo" {
 }
 
 resource "aws_eks_node_group" "private-nodes" {
-  cluster_name    = aws_eks_cluster.demo.name
+  cluster_name    = aws_eks_cluster.group2EKS.name
   node_group_name = "private-nodes"
   node_role_arn   = var.role_node_arn
 
