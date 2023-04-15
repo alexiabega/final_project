@@ -34,3 +34,7 @@ resource "aws_eks_node_group" "private-nodes" {
   }
 }
 
+resource "aws_ecr_repository" "ecr-repository" {
+  name = "group2-ecr"
+}
+
