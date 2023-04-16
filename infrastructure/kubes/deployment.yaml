@@ -31,13 +31,13 @@ spec:
             - containerPort: 5000
           env:
             - name: DATABASE_HOST
-              value: group2-db.cjsnrrorjfz7.eu-north-1.rds.amazonaws.com
+              value: ${DATABASE_HOST}  #group2-db.cjsnrrorjfz7.eu-north-1.rds.amazonaws.com
             - name: DATABASE_PORT
-              value: "5432"
+              value: ${DATABASE_PORT} #"5432"
             - name: DATABASE_USER
-              value: postgres
+              value: ${DATABASE_USER} #postgres
             - name: DATABASE_PASSWORD
-              value: postgres
+              value: ${DATABASE_PASSWORD} #postgres
             - name: DATABASE_NAME
-              value: dev
+              value: ${DATABASE_NAME} #dev
           imagePullPolicy: Always
