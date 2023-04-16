@@ -25,3 +25,7 @@ output "db_username" {
 output "db_password" {
   value = var.DB_PASSWORD
 }
+
+output "db_name" {
+  value = var.DB_NAME
+}
