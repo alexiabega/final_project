@@ -65,25 +65,29 @@ jobs:
         id: output
         if: github.event_name == 'push'
         run: |
-          web_client_bucket_dev=$(terraform output WEB_CLIENT_BUCKET_DEV)
-          web_admin_bucket_dev=$(terraform output WEB_ADMIN_BUCKET_DEV)
-          web_client_domain_dev=$(terraform output WEB_CLIENT_DOMAIN_DEV)
-          web_admin_domain_dev=$(terraform output WEB_ADMIN_DOMAIN_DEV)
-          ecr_repository_name=$(terraform output ECR_REPOSITORY_NAME_DEV)
-          alb_domain_name=$(terraform output ALB_DOMAIN_NAME_DEV)
-          echo "::set-output name=WEB_CLIENT_BUCKET_DEV::${web_client_bucket_dev}"
-          echo "::set-output name=WEB_ADMIN_BUCKET_DEV::${web_admin_bucket_dev}"
-          echo "::set-output name=WEB_CLIENT_DOMAIN_DEV::${web_client_domain_dev}"
-          echo "::set-output name=WEB_ADMIN_DOMAIN_DEV::${web_admin_domain_dev}"
-          echo "::set-output name=ECR_REPOSITORY_NAME_DEV::${ecr_repository_name}"
-          echo "::set-output name=ALB_DOMAIN_NAME_DEV::${alb_domain_name}"
+          rds_endpoint=$(terraform output rds_endpoint)
+          db-address=$(terraform output db-address )
+          db-port=$(terraform outputdb-port )
+          bucket_name=$(terraform output bucket_name)
+          ecr_repository_name=$(terraform output ecr_repository_name)
+          db_username=$(terraform output db_username)
+          db_password=$(terraform output db_password)
+          echo "::set-output name=rds_endpoint::${rds_endpoint}"
+          echo "::set-output name=db-address::${db-address}"
+          echo "::set-output name=db-port::${db-port}"
+          echo "::set-output name=bucket_name::${bucket_name}"
+          echo "::set-output name=ecr_repository_name::${ecr_repository_name}"
+          echo "::set-output name=db_username::${db_username}"
+          echo "::set-output name=db_password::${db_password}"
     outputs:
-      WEB_CLIENT_DOMAIN_DEV: ${{ steps.output.outputs.WEB_CLIENT_DOMAIN_DEV }}
-      WEB_ADMIN_DOMAIN_DEV: ${{ steps.output.outputs.WEB_ADMIN_DOMAIN_DEV }}
-      WEB_CLIENT_BUCKET_DEV: ${{ steps.output.outputs.WEB_CLIENT_BUCKET_DEV }}
-      WEB_ADMIN_BUCKET_DEV: ${{ steps.output.outputs.WEB_ADMIN_BUCKET_DEV }}
-      ECR_REPOSITORY_NAME_DEV: ${{ steps.output.outputs.ECR_REPOSITORY_NAME_DEV }}
-      ALB_DOMAIN_NAME_DEV: ${{ steps.output.outputs.ALB_DOMAIN_NAME_DEV }}
+      rds_endpoint: ${{ steps.output.outputs.rds_endpoint }}
+      db-address: ${{ steps.output.outputs.WEB_ADMIN_BUCKET_DEV }}
+      db-port: ${{ steps.output.outputs.db-port}}
+      bucket_name: ${{ steps.output.outputs.bucket_name }}
+      ecr_repository_name: ${{ steps.output.outputs.ecr_repository_name }}
+      db_username: ${{ steps.output.outputs.db_username }}
+      db_password: ${{ steps.output.outputs.db_password }}
+
   build_api:
     name: 'Build API'
     runs-on: ubuntu-latest
@@ -95,7 +99,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: eu-north-1
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -103,7 +107,7 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ needs.terraform.outputs.ECR_REPOSITORY_NAME_DEV }}
+          ECR_REPOSITORY: ${{ needs.terraform.outputs.ecr_repository_name }}
           IMAGE_TAG: latest
         run: |
           docker build -t "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}" ./api
@@ -124,11 +128,11 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: eu-north-1
       - name: Build React App
         run: |
           npm install
-          export REACT_APP_SERVER_URL=http://${{ needs.terraform.outputs.ALB_DOMAIN_NAME_DEV }}
+          export REACT_APP_SERVER_URL=http://${{ needs.terraform.outputs.rds_endpoint }}
           npm run build
       - name: Deploy app build to S3 bucket
-        run: aws s3 sync ./build/ s3://${{ needs.terraform.outputs.WEB_CLIENT_BUCKET_DEV }} --delete
+        run: aws s3 sync ./build/ s3://${{ needs.terraform.outputs.bucket_name }} --delete
