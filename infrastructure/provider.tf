@@ -11,4 +11,12 @@ terraform {
       version = "~> 4.0"
     }
   }
+
+  cloud {
+    organization = "group2-final-project"
+
+    workspaces {
+      name = "final_project"
+    }
+  }
 }
